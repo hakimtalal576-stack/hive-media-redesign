@@ -1036,3 +1036,12 @@ html.theme-anim .format{
   .stage-shot:hover{transform:none}
   .theme-btn svg{transition:opacity .2s}
 }
+
+/* below the first screen, style and layout are deferred until needed */
+.statement,.chapters,.solutions,.screens,.process,.foot{content-visibility:auto}
+.statement{contain-intrinsic-size:auto 520px}
+.chapters{contain-intrinsic-size:auto 900px}
+.solutions{contain-intrinsic-size:auto 1400px}
+.screens{contain-intrinsic-size:auto 900px}
+.process{contain-intrinsic-size:auto 800px}
+.foot{contain-intrinsic-size:auto 900px}
