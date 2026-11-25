@@ -164,6 +164,12 @@
   /* ======================================================================
      2. Marquee
      ====================================================================== */
+  /* run work when the browser has a free moment, never before the first paint */
+  const idle = (fn) => {
+    if ('requestIdleCallback' in window) requestIdleCallback(fn, { timeout: 1500 });
+    else setTimeout(fn, 160);
+  };
+
   const marquee = (() => {
     const track = $('#marquee-track');
     const build = () => {
@@ -796,12 +802,18 @@
     if (burger) burger.setAttribute('aria-label', t(burger.getAttribute('aria-expanded') === 'true' ? 'close' : 'menu'));
     paintTheme(isLight() ? 'light' : 'dark');
 
-    marquee.build();
-    rot.reset();
-    stage.build();
-    /* on the first pass the simulator and map are off screen: their observers
-       start them when they come into view, so there is nothing to paint yet */
-    if (!initial) { sim.refresh(false); sim.layout(); globe.redraw(); }
+    if (initial) {
+      /* nothing below the fold has to exist before the first paint: build the
+         ticker, the rotating lines and the screen tabs once the browser is free */
+      idle(() => { marquee.build(); rot.reset(); stage.build(); });
+    } else {
+      marquee.build();
+      rot.reset();
+      stage.build();
+      sim.refresh(false);
+      sim.layout();
+      globe.redraw();
+    }
   };
 
   const langBtn = $('#lang-btn');
