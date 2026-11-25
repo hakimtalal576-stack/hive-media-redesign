@@ -508,7 +508,7 @@
 
     if (img.complete) layout(); else img.addEventListener('load', layout);
 
-    return { layout, refresh, stop };
+    return { layout, refresh, stop, reflow() { if (sized) layout(); } };
   })();
 
   /* ======================================================================
@@ -516,7 +516,7 @@
      ====================================================================== */
   const globe = (() => {
     const cv = $('#globe');
-    if (!cv) return { resize() {}, redraw() {}, start() {} };
+    if (!cv) return { resize() {}, redraw() {}, start() {}, reflow() {} };
     const g = cv.getContext('2d');
     const D = Math.PI / 180;
     const HOME = { lon: 47.98, lat: 29.38, en: 'Kuwait', ar: 'الكويت' };
@@ -535,6 +535,21 @@
       [[-55,60],[-43,60],[-35,66],[-20,70],[-18,77],[-30,83],[-60,82],[-70,77],[-58,75],[-52,69]],
       [[-80,9],[-77,8],[-72,12],[-62,11],[-52,5],[-50,0],[-44,-2],[-35,-5],[-35,-9],[-39,-14],[-41,-22],[-48,-26],[-53,-34],[-58,-35],[-57,-38],[-65,-41],[-65,-46],[-68,-50],[-69,-55],[-74,-52],[-74,-45],[-73,-38],[-71,-30],[-70,-18],[-76,-14],[-81,-6],[-80,-1],[-77,4],[-78,7]]
     ];
+
+    /* one bounding box per land mass: most grid points are rejected by this
+       test alone, which is what makes building the mask cheap */
+    const BOX = POLY.map(pts => {
+      let x0 = 180, x1 = -180, y0 = 90, y1 = -90;
+      for (const [x, y] of pts) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x;
+        if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+      return [x0, y0, x1, y1];
+    });
+    const inBox = (i, px, py) => {
+      const b = BOX[i];
+      return px >= b[0] && px <= b[2] && py >= b[1] && py <= b[3];
+    };
 
     const inPoly = (px, py, pts) => {
       let c = false;
@@ -558,7 +573,7 @@
       for (let lat = -56; lat <= 80; lat += 1.7) {
         const st = 1.7 / Math.max(0.25, Math.cos(lat * D));
         for (let lon = -180; lon < 180; lon += st) {
-          if (POLY.some(p => inPoly(lon, lat, p))) {
+          if (POLY.some((p, i) => inBox(i, lon, lat) && inPoly(lon, lat, p))) {
             const f = lat * D, l = lon * D;
             dots.push([Math.sin(f), Math.cos(f), l]);
           }
@@ -755,7 +770,7 @@
       }, { rootMargin: '0px' }).observe(cv);
     } else { visible = true; start(); }
 
-    return { resize, start, redraw() { if (!live && size) draw(performance.now()); } };
+    return { resize, start, reflow() { if (size) resize(); }, redraw() { if (!live && size) draw(performance.now()); } };
   })();
 
   /* ======================================================================
@@ -881,10 +896,18 @@
     if (on) toTop.removeAttribute('aria-hidden');
     else toTop.setAttribute('aria-hidden', 'true');
   };
+  /* the document height is measured on resize and when content settles, never
+     inside the scroll handler: reading it there forces a full re-layout per frame */
+  let maxScroll = 0;
+  const measure = () => { maxScroll = Math.max(0, document.documentElement.scrollHeight - innerHeight); };
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+  addEventListener('resize', measure, { passive: true });
+  addEventListener('load', measure);
+
   const onScroll = () => {
     ticking = false;
     const y = scrollY;
-    const max = document.documentElement.scrollHeight - innerHeight;
+    const max = maxScroll;
     if (bar) bar.style.setProperty('--sp', max > 0 ? (y / max).toFixed(4) : '0');
     if (nav) {
       nav.classList.toggle('is-stuck', y > 24);
@@ -896,6 +919,7 @@
     lastY = y;
   };
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  measure();
   onScroll();
 
   /* active nav */
@@ -1103,9 +1127,9 @@
   let rz = 0;
   addEventListener('resize', () => {
     clearTimeout(rz);
-    rz = setTimeout(() => { globe.resize(); sim.layout(); }, 140);
+    rz = setTimeout(() => { globe.reflow(); sim.reflow(); }, 140);
   });
-  addEventListener('orientationchange', () => setTimeout(() => { globe.resize(); sim.layout(); }, 250));
+  addEventListener('orientationchange', () => setTimeout(() => { globe.reflow(); sim.reflow(); }, 250));
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {

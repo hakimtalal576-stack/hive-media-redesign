@@ -123,7 +123,7 @@
 @media (min-width:820px){
   :root[data-theme="light"] .feature-copy{--fg:#F5F2EB;--fg-2:#B7B2A7;--accent:var(--gold);color:var(--fg)}
 }
-:root[data-theme="light"] .grain{opacity:.03;mix-blend-mode:multiply}
+:root[data-theme="light"] .grain{opacity:.04}
 :root[data-theme="light"] .foot-cta::before{filter:invert(1)}
 
 /* ---------- reset ---------- */
@@ -224,7 +224,7 @@ em,.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spac
 }
 [dir="rtl"] .progress{transform-origin:100% 50%}
 .grain{
-  position:fixed;inset:0;z-index:110;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  position:fixed;inset:0;z-index:110;pointer-events:none;opacity:.055;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 
@@ -1036,19 +1036,3 @@ html.theme-anim .format{
   .stage-shot:hover{transform:none}
   .theme-btn svg{transition:opacity .2s}
 }
-
-/* --------------------------------------------------------------------------
-   Deferred rendering for everything below the first screen.
-   The browser skips style, layout and paint for these sections until they are
-   about to be scrolled into view, which keeps the first frame cheap on a phone.
-   contain-intrinsic-size keeps the scrollbar honest while they are skipped.
-   -------------------------------------------------------------------------- */
-.statement,.chapters,.solutions,.screens,.process,.foot{
-  content-visibility:auto;
-}
-.statement{contain-intrinsic-size:auto 520px}
-.chapters{contain-intrinsic-size:auto 900px}
-.solutions{contain-intrinsic-size:auto 1400px}
-.screens{contain-intrinsic-size:auto 900px}
-.process{contain-intrinsic-size:auto 800px}
-.foot{contain-intrinsic-size:auto 900px}
