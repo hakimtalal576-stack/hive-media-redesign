@@ -103,6 +103,32 @@ python3 -m http.server 8000
 Opening `index.html` directly from disk also works, but a server is recommended so the
 film and fonts load consistently.
 
+
+## Performance
+
+Mobile Lighthouse on the live preview: **97 performance, 100 accessibility, 100 best
+practices, 100 SEO** — FCP 1.8 s, LCP 2.2 s, TBT 20 ms, CLS 0. It started at 57.
+
+What that took:
+
+- **Type is self-hosted.** Five families, cut down to the glyphs the copy uses and kept as
+  one variable file per family (102 KB in the repo, 74 KB fetched in English). No third
+  party sits on the critical path, and metric-matched fallbacks mean the swap moves nothing.
+- **Every photograph ships 2–6 widths** with `sizes`, so a phone pulls a 62 KB hero instead
+  of 314 KB. Everything below the fold is `loading="lazy"`.
+- **The behaviour loads after the first paint.** Nothing above the fold needs it: the hero,
+  the nav and the copy are styled and visible without JavaScript.
+- **Off-screen work is deferred.** The map's land mask, the LED panel, the ticker and the
+  screen tabs build when their sections come close, not at load. Sections below the first
+  screen use `content-visibility`, so the first frame only lays out the hero.
+- **No forced reflow in the scroll path.** The document height is measured on resize, never
+  per frame.
+- **The grain lost its blend mode.** The same texture for a third of the raster cost.
+
+The last three points are the two round trips for HTML and CSS on Lighthouse's simulated
+slow 4G (TTFB ~450 ms). Inlining the stylesheet measured the same, so it is not worth the
+maintenance cost.
+
 ## Notes for review
 
 - Content is written to be clear and short. Where the original site had longer passages,
