@@ -774,7 +774,7 @@ em,.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spac
 
 /* the LED panel actually lights the tower --------------------------------- */
 .hx-glow{
-  position:absolute;left:30.5%;top:28.2%;width:39.5%;height:20.4%;pointer-events:none;z-index:1;
+  position:absolute;left:30.1%;top:27.8%;width:40.4%;height:22.6%;pointer-events:none;z-index:1;
   background:var(--led,#F8C41C);opacity:.42;filter:blur(30px);mix-blend-mode:screen;
   transition:background .6s var(--ease),opacity .6s var(--ease);
 }

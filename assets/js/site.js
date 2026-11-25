@@ -315,7 +315,7 @@
     c.width = W; c.height = H;
 
     /* corners of the screen inside the 720 x 1280 photo */
-    const QUAD = [[224, 313], [502, 276], [502, 453], [224, 466]];
+    const QUAD = [[218, 307], [506, 269], [506, 471], [218, 484]];
 
     const LEDS = {
       gold: { dot: '#F8C41C', hot: '#FFF7D8' },
@@ -351,16 +351,26 @@
       const w = img.clientWidth;
       if (!w) return;
       const s = w / 720;
-      const d = QUAD.map(([px, py]) => [px * s, py * s]);
-      const src = [[0, 0], [CW, 0], [CW, CH], [0, CH]];
-      const A = [], B = [];
-      for (let i = 0; i < 4; i++) {
-        const [X, Y] = src[i], [u, v] = d[i];
-        A.push([X, Y, 1, 0, 0, 0, -u * X, -u * Y]); B.push(u);
-        A.push([0, 0, 0, X, Y, 1, -v * X, -v * Y]); B.push(v);
-      }
-      const k = solve(A, B);
-      c.style.transform = `matrix3d(${k[0]},${k[3]},0,${k[6]},${k[1]},${k[4]},0,${k[7]},0,0,1,0,${k[2]},${k[5]},0,1)`;
+      const q = QUAD.map(([px, py]) => [px * s, py * s]);
+      const [q0, q1, q2, q3] = q;
+
+      /* an affine fit that always covers the panel, then clip to the real shape:
+         the browser flattens the 4x4 matrix, so the clip keeps the perspective edge exact */
+      const a = (q1[0] - q0[0]) / CW;
+      const b = (q1[1] - q0[1]) / CW;
+      const d = (q2[1] - q1[1]) / CH;
+      const e = q0[0];
+      const f = q0[1];
+      c.style.transform = `matrix(${a},${b},0,${d},${e},${f})`;
+
+      if (!a || !d) return;
+      /* invert x' = a*x + e, y' = b*x + d*y + f */
+      const local = [q0, q1, q2, q3].map(([X, Y]) => {
+        const dx = X - e, dy = Y - f;
+        return `${(dx / a).toFixed(2)}px ${((dy - (b / a) * dx) / d).toFixed(2)}px`;
+      });
+      c.style.clipPath = `polygon(${local.join(', ')})`;
+      c.style.webkitClipPath = c.style.clipPath;
     };
 
     const makeMask = (text) => {
