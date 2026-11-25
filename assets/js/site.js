@@ -24,6 +24,7 @@
       note: 'Concept design prepared for Hive Media. Not the official website.',
       kwTime: 'Kuwait time',
       langLabel: 'Switch to Arabic', langBtn: 'ع',
+      theme: 'Light theme', themeLight: 'Switch to light theme', themeDark: 'Switch to dark theme',
       menu: 'Open menu', close: 'Close menu',
       navMedia: 'Solutions', navX: 'Hive X', navScreens: 'Screens', navAbout: 'About', navContact: 'Contact',
       book: 'Request a proposal', iLink: 'Discover Hive X',
@@ -86,6 +87,7 @@
       note: 'تصميم مبدئي مُعدّ لهايف ميديا. ليس الموقع الرسمي.',
       kwTime: 'توقيت الكويت',
       langLabel: 'التبديل إلى الإنجليزية', langBtn: 'EN',
+      theme: 'المظهر الفاتح', themeLight: 'التبديل إلى المظهر الفاتح', themeDark: 'التبديل إلى المظهر الداكن',
       menu: 'افتح القائمة', close: 'أغلق القائمة',
       navMedia: 'حلولنا', navX: 'هايف X', navScreens: 'الشاشات', navAbout: 'من نحن', navContact: 'تواصل',
       book: 'اطلب عرضاً', iLink: 'اكتشف هايف X',
@@ -752,6 +754,7 @@
     if (lb) { lb.textContent = t('langBtn'); lb.setAttribute('aria-label', t('langLabel')); }
     const burger = $('#burger');
     if (burger) burger.setAttribute('aria-label', t(burger.getAttribute('aria-expanded') === 'true' ? 'close' : 'menu'));
+    paintTheme(isLight() ? 'light' : 'dark');
 
     marquee.build();
     rot.reset();
@@ -767,6 +770,38 @@
     store.set('hive-lang', lang);
     applyLang();
   });
+
+  /* ======================================================================
+     7b. Theme
+     ====================================================================== */
+  const themeBtn = $('#theme-btn');
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const isLight = () => root.getAttribute('data-theme') === 'light';
+
+  const paintTheme = (mode) => {
+    if (mode === 'light') root.setAttribute('data-theme', 'light');
+    else root.removeAttribute('data-theme');
+    if (themeBtn) {
+      const light = mode === 'light';
+      themeBtn.setAttribute('aria-pressed', light ? 'true' : 'false');
+      themeBtn.title = light ? t('themeDark') : t('themeLight');
+    }
+    if (themeMeta) themeMeta.setAttribute('content', mode === 'light' ? '#F5F1E9' : '#08080A');
+  };
+
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const next = isLight() ? 'dark' : 'light';
+      store.set('hive-theme', next);
+      if (!reduce) {
+        root.classList.add('theme-anim');
+        clearTimeout(paintTheme.t);
+        paintTheme.t = setTimeout(() => root.classList.remove('theme-anim'), 640);
+      }
+      paintTheme(next);
+      sim.layout();
+    });
+  }
 
   /* ======================================================================
      8. Nav, menu, reveal, counters, chrome
@@ -1034,6 +1069,7 @@
     }
 
     $$('.chapter').forEach(el => track(el, true));
+    $$('.format').forEach(el => track(el, false));
     $$('[data-sheen]').forEach(el => track(el, false));
     $$('[data-hex]').forEach(el => track(el, false));
   }

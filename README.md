@@ -63,6 +63,24 @@ and fully readable.
 | Navigation | Hides on scroll down, returns on scroll up, marks the section you are in, and always returns on keyboard focus. |
 | Footer | A hex field lights up in gold under the pointer, on brand for a company called Hive. |
 | Everywhere | Scroll reveals, counting statistics, a progress hairline, and a back-to-top control that appears once you are deep in the page. |
+| Hover craft | Format rows take a gold wash that follows the pointer and lean their heading in; the fact strip warms its number and lifts; chapter cards light a gold hairline edge; screen stills lift off the page; footer links draw their underline in; the logo mark answers the pointer. |
+
+## Light and dark
+
+The house look is dark; light is one click away and remembered.
+
+The toggle sits in the nav (sun in dark, moon in light), is a 44 px target, exposes its
+state with `aria-pressed`, and persists to `localStorage`. A small inline script sets the
+theme before first paint, so there is no flash on reload. The switch itself is a 0.5 s
+cross-fade, skipped under reduced motion.
+
+Light mode is a real theme, not an inversion filter. The page ground flips to warm paper and
+the "paper" chapters flip to ink, so the rhythm of light and dark bands survives the switch.
+The hero film, the photo chapters and the glass copy over media stay dark in both themes,
+and the accent returns to bright gold inside them. The gold accent darkens to `#7C5900` on
+paper so type keeps its contrast: every text pair on the page was measured, and the lowest
+ratio is 4.5:1 for body text and 3:1 for display. `color-scheme` and the `theme-color` meta
+follow the choice.
 
 ## Structure
 

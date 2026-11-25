@@ -6,6 +6,16 @@
 <title>Hive Media — Digital advertising without limits · Kuwait</title>
 <meta name="description" content="Hive Media runs LED screens across Kuwait's busiest locations, including Kuwait's largest digital screen. Outdoor LED, in-mall displays and smart vending media.">
 <meta name="theme-color" content="#08080A">
+<script>
+/* set the theme before first paint so there is no flash.
+   The house look is dark; light is opt-in and remembered. */
+(function(){try{
+  if(localStorage.getItem('hive-theme')==='light'){
+    document.documentElement.setAttribute('data-theme','light');
+    var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute('content','#F5F1E9');
+  }
+}catch(e){}})();
+</script>
 <meta property="og:title" content="Hive Media — Digital advertising without limits">
 <meta property="og:description" content="LED screens across Kuwait's busiest locations, in-mall displays and smart vending media.">
 <meta property="og:type" content="website">
@@ -77,6 +87,10 @@
       <a href="#contact" data-nav="contact" data-i18n="navContact">Contact</a>
     </nav>
     <div class="nav-end">
+      <button class="theme-btn" id="theme-btn" type="button" aria-pressed="false" aria-label="Light theme" title="Switch to light theme" data-i18n-aria="theme">
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.1M12 19.3v2.1M2.6 12h2.1M19.3 12h2.1M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M18.7 5.3l-1.5 1.5M6.8 17.2l-1.5 1.5"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.4 14.7A8.6 8.6 0 0 1 9.3 3.6a8.7 8.7 0 1 0 11.1 11.1Z"/></svg>
+      </button>
       <a class="btn btn-gold btn-sm" href="#contact" data-i18n="book">Request a proposal</a>
       <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu" data-i18n-aria="menu">
         <span></span><span></span>
