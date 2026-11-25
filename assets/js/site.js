@@ -314,7 +314,8 @@
     const COLS = 92, ROWS = 50, CELL = 12;           // internal 1104 x 600, displayed at 552 x 300
     const W = COLS * CELL, H = ROWS * CELL;
     const CW = 552, CH = 300;                        // CSS box the transform maps from
-    c.width = W; c.height = H;
+    let sized = false;
+    const ensure = () => { if (!sized) { c.width = W; c.height = H; sized = true; } };
 
     /* corners of the screen inside the 720 x 1280 photo */
     const QUAD = [[218, 307], [506, 269], [506, 471], [218, 484]];
@@ -352,6 +353,7 @@
     const layout = () => {
       const w = img.clientWidth;
       if (!w) return;
+      ensure();
       const s = w / 720;
       const q = QUAD.map(([px, py]) => [px * s, py * s]);
       const [q0, q1, q2, q3] = q;
@@ -476,6 +478,7 @@
     setLed('gold', false);
 
     const refresh = (announce) => {
+      if (!sized) return;
       const v = input.value.trim();
       const text = v || t('simDemo');
       mask = makeMask(text.toUpperCase());
@@ -491,9 +494,15 @@
     if (clear) clear.addEventListener('click', () => { input.value = ''; refresh(false); input.focus(); });
 
     if ('IntersectionObserver' in window) {
+      let tries = 0;
+      const enter = () => {
+        layout();
+        if (!sized && tries++ < 10) { requestAnimationFrame(enter); return; }
+        start();
+      };
       new IntersectionObserver((es) => {
         visible = es[0].isIntersecting;
-        if (visible) { layout(); start(); } else stop();
+        if (visible) enter(); else stop();
       }, { rootMargin: '120px' }).observe(wrap);
     } else { visible = true; }
 
@@ -540,22 +549,30 @@
     const K = [Math.cos(fk) * Math.cos(lk), Math.cos(fk) * Math.sin(lk), Math.sin(fk)];
     const E = [-Math.sin(lk), Math.cos(lk), 0];
     const N = [-Math.sin(fk) * Math.cos(lk), -Math.sin(fk) * Math.sin(lk), Math.cos(fk)];
-    const dots = [];
-    for (let lat = -56; lat <= 80; lat += 1.7) {
-      const st = 1.7 / Math.max(0.25, Math.cos(lat * D));
-      for (let lon = -180; lon < 180; lon += st) {
-        if (POLY.some(p => inPoly(lon, lat, p))) {
-          const f = lat * D, l = lon * D;
-          dots.push([Math.sin(f), Math.cos(f), l]);
+    /* the land mask is ~29k point-in-polygon tests; it is only worth doing
+       once the map is actually on screen, so it is built on first use. */
+    let dots = null;
+    const buildDots = () => {
+      if (dots) return;
+      dots = [];
+      for (let lat = -56; lat <= 80; lat += 1.7) {
+        const st = 1.7 / Math.max(0.25, Math.cos(lat * D));
+        for (let lon = -180; lon < 180; lon += st) {
+          if (POLY.some(p => inPoly(lon, lat, p))) {
+            const f = lat * D, l = lon * D;
+            dots.push([Math.sin(f), Math.cos(f), l]);
+          }
         }
       }
-    }
+    };
 
     let size = 0, lam = HOME.lon - 8, phi = 21, vel = 0, drag = false, lx = 0, ly = 0,
         idle = 0, live = false, visible = false, born = 0, raf = 0;
 
     const resize = () => {
       const r = cv.getBoundingClientRect();
+      if (!r.width) return;
+      buildDots();
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       size = r.width;
       if (!size) return;
@@ -701,8 +718,13 @@
       raf = requestAnimationFrame(loop);
     };
 
+    let tries = 0;
     const start = () => {
       if (live || !visible) return;
+      if (!size) {
+        resize();
+        if (!size && tries++ < 12) { requestAnimationFrame(start); return; }
+      }
       if (!born) born = performance.now();
       if (reduce) { draw(performance.now()); return; }
       live = true;
@@ -733,22 +755,25 @@
       }, { rootMargin: '0px' }).observe(cv);
     } else { visible = true; start(); }
 
-    return { resize, start, redraw() { if (!live) draw(performance.now()); } };
+    return { resize, start, redraw() { if (!live && size) draw(performance.now()); } };
   })();
 
   /* ======================================================================
      7. Language
      ====================================================================== */
-  const applyLang = () => {
+  const applyLang = (initial) => {
     root.lang = lang;
     root.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-    $$('[data-i18n]').forEach(n => {
-      const v = t(n.dataset.i18n);
-      if (typeof v === 'string') n.innerHTML = v;
-    });
-    $$('[data-i18n-ph]').forEach(n => { n.placeholder = t(n.dataset.i18nPh); });
-    $$('[data-i18n-aria]').forEach(n => { n.setAttribute('aria-label', t(n.dataset.i18nAria)); });
+    /* the document ships English, so the first pass has nothing to rewrite */
+    if (!(initial && lang === 'en')) {
+      $$('[data-i18n]').forEach(n => {
+        const v = t(n.dataset.i18n);
+        if (typeof v === 'string') n.innerHTML = v;
+      });
+      $$('[data-i18n-ph]').forEach(n => { n.placeholder = t(n.dataset.i18nPh); });
+      $$('[data-i18n-aria]').forEach(n => { n.setAttribute('aria-label', t(n.dataset.i18nAria)); });
+    }
 
     const lb = $('#lang-btn');
     if (lb) { lb.textContent = t('langBtn'); lb.setAttribute('aria-label', t('langLabel')); }
@@ -759,9 +784,9 @@
     marquee.build();
     rot.reset();
     stage.build();
-    sim.refresh(false);
-    sim.layout();
-    globe.redraw();
+    /* on the first pass the simulator and map are off screen: their observers
+       start them when they come into view, so there is nothing to paint yet */
+    if (!initial) { sim.refresh(false); sim.layout(); globe.redraw(); }
   };
 
   const langBtn = $('#lang-btn');
@@ -1084,9 +1109,8 @@
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
-      globe.resize();
+      globe.redraw();
       sim.refresh(false);
-      sim.layout();
       stage.paint();
     });
   }
@@ -1094,10 +1118,8 @@
   /* ======================================================================
      9. Boot
      ====================================================================== */
-  applyLang();
-  globe.resize();
+  applyLang(true);
   globe.start();
-  sim.layout();
   rot.start();
   onScroll();
 })();

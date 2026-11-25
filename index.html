@@ -20,10 +20,8 @@
 <meta property="og:description" content="LED screens across Kuwait's busiest locations, in-mall displays and smart vending media.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/media/hero.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="assets/media/hero.webp" fetchpriority="high">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@1&family=Alexandria:wght@400;500;700&family=Quicksand:wght@400;500&display=swap">
+<link rel="preload" as="image" href="assets/media/hero-1080.webp" fetchpriority="high"
+      imagesrcset="assets/media/hero-480.webp 480w, assets/media/hero-768.webp 768w, assets/media/hero-1080.webp 1080w, assets/media/hero-1440.webp 1440w, assets/media/hero-1920.webp 1920w" imagesizes="100vw">
 <link rel="stylesheet" href="assets/css/site.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 46'%3E%3Cpolygon points='20,2 37,12 37,32 20,42 3,32 3,12' fill='%23F8C41C'/%3E%3C/svg%3E">
 <script type="application/ld+json">
@@ -123,7 +121,9 @@
 <!-- ── hero ──────────────────────────────────────────────────── -->
 <section class="hero" id="hero">
   <div class="hero-media" aria-hidden="true">
-    <img class="hero-poster" src="assets/media/hero.webp" alt="" width="1920" height="1080" fetchpriority="high">
+    <img class="hero-poster" src="assets/media/hero-1080.webp"
+         srcset="assets/media/hero-480.webp 480w, assets/media/hero-768.webp 768w, assets/media/hero-1080.webp 1080w, assets/media/hero-1440.webp 1440w, assets/media/hero-1920.webp 1920w"
+         sizes="100vw" alt="" width="1920" height="1080" fetchpriority="high" decoding="async">
     <video id="hero-video" muted loop playsinline preload="none" poster="assets/media/hero.webp" tabindex="-1"></video>
   </div>
   <div class="hero-scrim" aria-hidden="true"></div>
@@ -186,7 +186,7 @@
 <!-- ── two chapters ──────────────────────────────────────────── -->
 <section class="chapters" aria-label="Explore">
   <a class="chapter chapter-a" href="#hivex" data-reveal>
-    <div class="chapter-media"><img src="assets/media/hivex.webp" alt="The Hive X screen lit on a tower in Kuwait City at night" width="720" height="1280" loading="lazy" decoding="async"></div>
+    <div class="chapter-media"><img src="assets/media/hivex-720.webp" srcset="assets/media/hivex-480.webp 480w, assets/media/hivex-720.webp 720w" sizes="(max-width: 900px) 100vw, 50vw" alt="The Hive X screen lit on a tower in Kuwait City at night" width="720" height="1280" loading="lazy" decoding="async"></div>
     <div class="chapter-body">
       <span class="chapter-k" data-i18n="xEyebrow">The flagship</span>
       <span class="chapter-t">Hive <em>X</em></span>
@@ -195,7 +195,7 @@
     </div>
   </a>
   <a class="chapter chapter-b" href="#screens" data-reveal data-reveal-delay="1">
-    <div class="chapter-media"><img src="assets/media/hive1.webp" alt="Hive 1.0 campaign with 3D shapes breaking out of the screen" width="720" height="1280" loading="lazy" decoding="async"></div>
+    <div class="chapter-media"><img src="assets/media/hive1-720.webp" srcset="assets/media/hive1-480.webp 480w, assets/media/hive1-720.webp 720w" sizes="(max-width: 900px) 100vw, 50vw" alt="Hive 1.0 campaign with 3D shapes breaking out of the screen" width="720" height="1280" loading="lazy" decoding="async"></div>
     <div class="chapter-body">
       <span class="chapter-k" data-i18n="sEyebrow">Portfolio</span>
       <span class="chapter-t" data-i18n="t2b">Screens</span>
@@ -219,7 +219,7 @@
     <div class="formats">
       <article class="format format-feature" data-reveal>
         <div class="feature-media">
-          <img src="assets/media/dooh.webp" alt="A Hive Media LED screen wrapping the corner of a building above a Kuwait street" width="1400" height="782" loading="lazy" decoding="async">
+          <img src="assets/media/dooh-1200.webp" srcset="assets/media/dooh-480.webp 480w, assets/media/dooh-800.webp 800w, assets/media/dooh-1200.webp 1200w" sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" alt="A Hive Media LED screen wrapping the corner of a building above a Kuwait street" width="1400" height="782" loading="lazy" decoding="async">
         </div>
         <div class="feature-copy">
           <span class="format-n" aria-hidden="true">01</span>
@@ -230,7 +230,7 @@
       </article>
       <article class="format format-flip" data-reveal>
         <div class="format-media" data-sheen>
-          <img src="assets/media/mall.webp" alt="A vertical Hive Media display between two lifts" width="1200" height="800" loading="lazy" decoding="async">
+          <img src="assets/media/mall-1200.webp" srcset="assets/media/mall-480.webp 480w, assets/media/mall-800.webp 800w, assets/media/mall-1200.webp 1200w" sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" alt="A vertical Hive Media display between two lifts" width="1200" height="800" loading="lazy" decoding="async">
         </div>
         <div class="format-text">
           <span class="format-n" aria-hidden="true">02</span>
@@ -241,7 +241,7 @@
       </article>
       <article class="format" data-reveal>
         <div class="format-media" data-sheen>
-          <img src="assets/media/vending.webp" alt="A smart vending machine with Hive Media digital screens" width="900" height="1198" loading="lazy" decoding="async">
+          <img src="assets/media/vending-900.webp" srcset="assets/media/vending-480.webp 480w, assets/media/vending-800.webp 800w, assets/media/vending-900.webp 900w" sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" alt="A smart vending machine with Hive Media digital screens" width="900" height="1198" loading="lazy" decoding="async">
         </div>
         <div class="format-text">
           <span class="format-n" aria-hidden="true">03</span>
@@ -264,7 +264,7 @@
   <div class="shell hx">
     <div class="hx-stage-col" data-reveal>
       <div class="hx-stage" id="hx-stage">
-        <img id="hx-img" src="assets/media/hivex.webp" alt="The Hive X screen lit up on a tower in Kuwait City at night" width="720" height="1280" loading="lazy" decoding="async">
+        <img id="hx-img" src="assets/media/hivex-720.webp" srcset="assets/media/hivex-480.webp 480w, assets/media/hivex-720.webp 720w" sizes="(max-width: 760px) 90vw, 520px" alt="The Hive X screen lit up on a tower in Kuwait City at night" width="720" height="1280" loading="lazy" decoding="async">
         <span class="hx-glow" aria-hidden="true"></span>
         <canvas id="sim" width="552" height="300" aria-hidden="true"></canvas>
         <span class="hx-frame" aria-hidden="true"></span>

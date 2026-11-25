@@ -1,3 +1,17 @@
+/* --------------------------------------------------------------------------
+   Typefaces, self-hosted.
+   Latin (and arabic) subsets of the five families the page uses, cut down to
+   the glyphs the copy actually contains. Variable where the family is variable,
+   so one file per family covers every weight. No third-party connection sits on
+   the critical path.
+   -------------------------------------------------------------------------- */
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/inter-tight.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/inter.woff2) format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/instrument-serif-italic.woff2) format('woff2')}
+@font-face{font-family:'Quicksand';font-style:normal;font-weight:300 700;font-display:swap;src:url(../fonts/quicksand.woff2) format('woff2')}
+@font-face{font-family:'Alexandria';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/alexandria-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F,U+2190-21BB}
+@font-face{font-family:'Alexandria';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/alexandria-arabic.woff2) format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+
 /* ==========================================================================
    Hive Media — design system
    Dark-first editorial. Warm paper for the light chapters.
@@ -5,6 +19,12 @@
    ========================================================================== */
 
 /* ---------- tokens ---------- */
+/* Metric-matched fallbacks: the swap from system font to webfont moves nothing,
+   so a late-arriving face cannot shift layout. */
+@font-face{font-family:'Inter Tight Fallback';src:local('Arial'),local('Helvetica Neue');size-adjust:96.8%;ascent-override:96.9%;descent-override:24.1%;line-gap-override:0%}
+@font-face{font-family:'Inter Fallback';src:local('Arial'),local('Helvetica Neue');size-adjust:106.7%;ascent-override:96.9%;descent-override:24.1%;line-gap-override:0%}
+@font-face{font-family:'Quicksand Fallback';src:local('Arial'),local('Helvetica Neue');size-adjust:101.9%;ascent-override:100%;descent-override:25%;line-gap-override:0%}
+
 :root{
   /* surfaces */
   --ink:#08080A;
@@ -33,10 +53,10 @@
   --gold-deep-lg:#A2730A;
 
   /* type */
-  --display:'Inter Tight','Helvetica Neue',Arial,sans-serif;
-  --body:'Inter','Helvetica Neue',Arial,sans-serif;
+  --display:'Inter Tight','Inter Tight Fallback','Helvetica Neue',Arial,sans-serif;
+  --body:'Inter','Inter Fallback','Helvetica Neue',Arial,sans-serif;
   --serif:'Instrument Serif',Georgia,serif;
-  --logo:'Quicksand','Inter Tight',sans-serif;
+  --logo:'Quicksand','Quicksand Fallback','Inter Tight',sans-serif;
 
   --t-display:clamp(2.85rem,7.6vw,7.4rem);
   --t-h2:clamp(2.05rem,4.9vw,4.15rem);
@@ -1016,3 +1036,19 @@ html.theme-anim .format{
   .stage-shot:hover{transform:none}
   .theme-btn svg{transition:opacity .2s}
 }
+
+/* --------------------------------------------------------------------------
+   Deferred rendering for everything below the first screen.
+   The browser skips style, layout and paint for these sections until they are
+   about to be scrolled into view, which keeps the first frame cheap on a phone.
+   contain-intrinsic-size keeps the scrollbar honest while they are skipped.
+   -------------------------------------------------------------------------- */
+.statement,.chapters,.solutions,.screens,.process,.foot{
+  content-visibility:auto;
+}
+.statement{contain-intrinsic-size:auto 520px}
+.chapters{contain-intrinsic-size:auto 900px}
+.solutions{contain-intrinsic-size:auto 1400px}
+.screens{contain-intrinsic-size:auto 900px}
+.process{contain-intrinsic-size:auto 800px}
+.foot{contain-intrinsic-size:auto 900px}
