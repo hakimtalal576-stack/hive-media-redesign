@@ -166,8 +166,13 @@
      ====================================================================== */
   /* run work when the browser has a free moment, never before the first paint */
   const idle = (fn) => {
-    if ('requestIdleCallback' in window) requestIdleCallback(fn, { timeout: 1500 });
-    else setTimeout(fn, 160);
+    const go = () => {
+      if ('requestIdleCallback' in window) requestIdleCallback(fn, { timeout: 2500 });
+      else setTimeout(fn, 200);
+    };
+    /* never compete with the first paint or with the images the page needs */
+    if (document.readyState === 'complete') go();
+    else addEventListener('load', go, { once: true });
   };
 
   const marquee = (() => {
