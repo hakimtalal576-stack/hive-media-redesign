@@ -113,6 +113,8 @@
     <video id="hero-video" muted loop playsinline preload="none" poster="assets/media/hero.webp" tabindex="-1"></video>
   </div>
   <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-spot" aria-hidden="true"></div>
 
   <div class="shell hero-in">
     <div class="hero-top">
@@ -213,7 +215,7 @@
         </div>
       </article>
       <article class="format format-flip" data-reveal>
-        <div class="format-media">
+        <div class="format-media" data-sheen>
           <img src="assets/media/mall.webp" alt="A vertical Hive Media display between two lifts" width="1200" height="800" loading="lazy" decoding="async">
         </div>
         <div class="format-text">
@@ -224,7 +226,7 @@
         </div>
       </article>
       <article class="format" data-reveal>
-        <div class="format-media">
+        <div class="format-media" data-sheen>
           <img src="assets/media/vending.webp" alt="A smart vending machine with Hive Media digital screens" width="900" height="1198" loading="lazy" decoding="async">
         </div>
         <div class="format-text">
@@ -249,6 +251,7 @@
     <div class="hx-stage-col" data-reveal>
       <div class="hx-stage" id="hx-stage">
         <img id="hx-img" src="assets/media/hivex.webp" alt="The Hive X screen lit up on a tower in Kuwait City at night" width="720" height="1280" loading="lazy" decoding="async">
+        <span class="hx-glow" aria-hidden="true"></span>
         <canvas id="sim" width="552" height="300" aria-hidden="true"></canvas>
         <span class="hx-frame" aria-hidden="true"></span>
       </div>
@@ -260,6 +263,14 @@
         <div class="sim-field">
           <input id="brand" type="text" maxlength="18" autocomplete="off" spellcheck="false" placeholder="Type your brand name" data-i18n-ph="simPh" aria-describedby="sim-note">
           <button class="sim-clear" id="sim-clear" type="button" hidden data-i18n="simClear">Clear</button>
+        </div>
+        <div class="sim-controls">
+          <div class="sim-swatches" role="group" aria-label="Screen colour" data-i18n-aria="simColor">
+            <button class="sw" type="button" data-led="gold" aria-pressed="true" aria-label="Amber" data-i18n-aria="swGold"><i aria-hidden="true"></i></button>
+            <button class="sw" type="button" data-led="ice" aria-pressed="false" aria-label="Ice" data-i18n-aria="swIce"><i aria-hidden="true"></i></button>
+            <button class="sw" type="button" data-led="rose" aria-pressed="false" aria-label="Rose" data-i18n-aria="swRose"><i aria-hidden="true"></i></button>
+          </div>
+          <button class="sim-mode" id="sim-mode" type="button" aria-pressed="false" aria-label="Animate the message" data-i18n-aria="simModeLabel">Scroll</button>
         </div>
         <p class="sim-note" id="sim-note" data-i18n="simNote">A simulation on a photo of Hive X. Watch the screen as you type.</p>
         <p class="sim-status sr" id="sim-status" role="status" aria-live="polite"></p>
@@ -301,7 +312,7 @@
 
     <div class="stage" data-reveal>
       <div class="stage-view" id="stage-panel" role="tabpanel" aria-labelledby="tab-0">
-        <a class="stage-shot" id="stage-link" href="https://www.youtube.com/watch?v=Jj14fRwLpO0" target="_blank" rel="noopener">
+        <a class="stage-shot" id="stage-link" data-sheen href="https://www.youtube.com/watch?v=Jj14fRwLpO0" target="_blank" rel="noopener">
           <img id="stage-img" src="assets/stills/Jj14fRwLpO0.webp" alt="" width="1280" height="720" loading="lazy" decoding="async">
           <video id="stage-clip" muted loop playsinline preload="none" hidden></video>
           <span class="stage-play" aria-hidden="true"><i></i></span>
@@ -362,7 +373,7 @@
 <!-- ── footer ────────────────────────────────────────────────── -->
 <footer class="foot" id="contact">
   <div class="shell">
-    <div class="foot-cta" data-reveal>
+    <div class="foot-cta" data-reveal data-hex>
       <div class="eyebrow eyebrow-gold"><i class="hex" aria-hidden="true"></i><span data-i18n="cEyebrow">Contact</span></div>
       <h2 class="foot-h"><span data-i18n="cHa">Ready to</span> <em data-i18n="cHb">amplify</em> <span data-i18n="cHc">your brand?</span></h2>
       <p class="foot-l" data-i18n="cL">Get in touch to discuss your advertising goals and see how we can maximise your visibility.</p>
@@ -432,6 +443,10 @@
     </div>
   </div>
 </footer>
+
+<a class="to-top" id="to-top" href="#top" aria-label="Back to top" data-i18n-aria="toTop" tabindex="-1" aria-hidden="true">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+</a>
 
 <script src="assets/js/site.js" defer></script>
 </body>

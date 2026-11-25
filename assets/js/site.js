@@ -57,6 +57,9 @@
       simLabel: 'See your brand on Hive X', simPh: 'Type your brand name', simClear: 'Clear',
       simNote: 'A simulation on a photo of Hive X. Watch the screen as you type.',
       simDemo: 'YOUR BRAND', simSet: 'Showing on Hive X: ',
+      simColor: 'Screen colour', simModeLabel: 'Animate the message',
+      swGold: 'Amber', swIce: 'Ice', swRose: 'Rose',
+      simStill: 'Static', simMoving: 'Scrolling', toTop: 'Back to top',
       sHa: 'The Hive', sHb: 'screens', sL: 'Every screen has a film. Choose one to watch it on YouTube.',
       watch: 'Watch on YouTube', tagFlag: 'Flagship', tagScreen: 'Screen', tagFilm: 'Film',
       hEyebrow: 'About us', hHa: 'Kuwait is', hHb: 'home',
@@ -116,6 +119,9 @@
       simLabel: 'شاهد علامتك على هايف X', simPh: 'اكتب اسم علامتك', simClear: 'مسح',
       simNote: 'محاكاة على صورة لشاشة هايف X. راقب الشاشة وأنت تكتب.',
       simDemo: 'علامتك هنا', simSet: 'تظهر الآن على هايف X: ',
+      simColor: 'لون الشاشة', simModeLabel: 'تحريك الرسالة',
+      swGold: 'كهرماني', swIce: 'ثلجي', swRose: 'وردي',
+      simStill: 'ثابت', simMoving: 'متحرك', toTop: 'إلى الأعلى',
       sHa: 'شاشات', sHb: 'هايف', sL: 'لكل شاشة فيلم. اختر واحدة لتشاهده على يوتيوب.',
       watch: 'شاهد على يوتيوب', tagFlag: 'الشاشة الأبرز', tagScreen: 'شاشة', tagFilm: 'فيلم',
       hEyebrow: 'من نحن', hHa: 'الكويت', hHb: 'بيتنا',
@@ -258,6 +264,39 @@
     };
 
     const select = (i, focus) => { current = i; paint(); };
+
+    /* swipe the stage to move through the screens */
+    const shot = $('#stage-link');
+    if (shot) {
+      let sx = 0, sy = 0, down = false, dragging = false;
+      shot.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        down = true; dragging = false; sx = e.clientX; sy = e.clientY;
+      });
+      shot.addEventListener('pointermove', e => {
+        if (!down) return;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (!dragging && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          dragging = true;
+          shot.classList.add('is-dragging');
+        }
+      });
+      const end = (e, cancelled) => {
+        if (!down) return;
+        down = false;
+        shot.classList.remove('is-dragging');
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        if (cancelled || !dragging || Math.abs(dx) < 55 || Math.abs(dy) > Math.abs(dx)) return;
+        let dir = dx < 0 ? 1 : -1;
+        if (root.dir === 'rtl') dir = -dir;
+        select((current + dir + SCREENS.length) % SCREENS.length, true);
+        shot.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); }, { once: true, capture: true });
+      };
+      shot.addEventListener('pointerup', e => end(e, false));
+      shot.addEventListener('pointercancel', e => end(e, true));
+      shot.addEventListener('dragstart', e => e.preventDefault());
+    }
+
     return { build, paint, select };
   })();
 
@@ -278,7 +317,14 @@
     /* corners of the screen inside the 720 x 1280 photo */
     const QUAD = [[224, 313], [502, 276], [502, 453], [224, 466]];
 
-    let mask = null, live = false, visible = false, raf = 0, demo = true;
+    const LEDS = {
+      gold: { dot: '#F8C41C', hot: '#FFF7D8' },
+      ice:  { dot: '#8FE6FF', hot: '#EAFDFF' },
+      rose: { dot: '#FF7AC2', hot: '#FFE6F5' }
+    };
+    const sws = $$('.sw', wrap.parentNode), modeBtn = $('#sim-mode');
+    let mask = null, maskW = COLS, live = false, visible = false, raf = 0, demo = true;
+    let led = 'gold', motion = false, shift = 0, lastT = 0;
 
     const solve = (A, b) => {
       const n = 8;
@@ -318,8 +364,10 @@
     };
 
     const makeMask = (text) => {
+      /* two copies side by side, so the message can run as a ticker */
+      const MW = COLS * 2;
       const m = document.createElement('canvas');
-      m.width = COLS; m.height = ROWS;
+      m.width = MW; m.height = ROWS;
       const g = m.getContext('2d', { willReadFrequently: true });
       let fs = ROWS * 0.42;
       const font = (size) => `700 ${size}px "Inter Tight", Inter, Arial, sans-serif`;
@@ -331,7 +379,9 @@
       g.textBaseline = 'middle';
       g.direction = 'ltr';
       g.fillText(text, COLS / 2, ROWS / 2 + fs * 0.04);
-      return g.getImageData(0, 0, COLS, ROWS).data;
+      g.fillText(text, COLS * 1.5, ROWS / 2 + fs * 0.04);
+      maskW = MW;
+      return g.getImageData(0, 0, MW, ROWS).data;
     };
 
     const paint = (now = 0) => {
@@ -346,14 +396,21 @@
       vg.addColorStop(1, 'rgba(4,4,6,1)');
       x.fillStyle = vg;
       x.fillRect(0, 0, W, H);
+      if (motion) {
+        if (lastT) shift += Math.min(80, now - lastT) * 0.021;
+        lastT = now;
+      } else { lastT = 0; }
+      const off = ((Math.round(shift) % maskW) + maskW) % maskW;
+
       const band = reduce ? -999 : ((now / 1000 * 0.55) % 1.6 - 0.3) * COLS;
+      const pal = LEDS[led] || LEDS.gold;
       for (let j = 0; j < ROWS; j++) {
         for (let i = 0; i < COLS; i++) {
-          const a = mask[(j * COLS + i) * 4 + 3];
+          const a = mask[(j * maskW + ((i + off) % maskW)) * 4 + 3];
           if (a < 80) continue;
           const hot = Math.abs(i - band) < 5;
           x.globalAlpha = Math.min(1, a / 180) * (hot ? 1 : 0.86);
-          x.fillStyle = hot ? '#FFF7D8' : '#F8C41C';
+          x.fillStyle = hot ? pal.hot : pal.dot;
           x.fillRect(i * CELL + 1.5, j * CELL + 1.5, CELL - 3, CELL - 3);
         }
       }
@@ -374,6 +431,38 @@
     };
     const stop = () => { live = false; cancelAnimationFrame(raf); };
 
+    const syncMotion = () => {
+      if (!modeBtn) return;
+      modeBtn.setAttribute('aria-pressed', String(motion));
+      modeBtn.textContent = t(motion ? 'simMoving' : 'simStill');
+    };
+
+    const setLed = (name, announce) => {
+      if (!LEDS[name]) return;
+      led = name;
+      sws.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.led === name)));
+      wrap.style.setProperty('--led', LEDS[name].dot);
+      if (!live) paint(0);
+      if (announce && status) {
+        const b = sws.filter(n => n.dataset.led === name)[0];
+        status.textContent = b ? b.getAttribute('aria-label') : '';
+      }
+    };
+
+    sws.forEach(b => b.addEventListener('click', () => setLed(b.dataset.led, true)));
+    if (modeBtn) {
+      if (reduce) modeBtn.hidden = true;
+      else modeBtn.addEventListener('click', () => {
+        motion = !motion;
+        shift = 0; lastT = 0;
+        syncMotion();
+        if (status) status.textContent = t(motion ? 'simMoving' : 'simStill');
+        if (live) paint(performance.now()); else start();
+      });
+    }
+    syncMotion();
+    setLed('gold', false);
+
     const refresh = (announce) => {
       const v = input.value.trim();
       const text = v || t('simDemo');
@@ -383,6 +472,7 @@
       if (count) count.textContent = `${v.length}/18`;
       if (!live) paint(0);
       if (announce && status) status.textContent = v ? t('simSet') + v : '';
+      syncMotion();
     };
 
     input.addEventListener('input', () => refresh(false));
@@ -712,12 +802,28 @@
 
   /* scroll chrome */
   const bar = $('#progress');
-  let ticking = false;
+  const toTop = $('#to-top');
+  let ticking = false, lastY = scrollY;
+  const setTop = (on) => {
+    if (!toTop) return;
+    toTop.classList.toggle('is-on', on);
+    toTop.tabIndex = on ? 0 : -1;
+    if (on) toTop.removeAttribute('aria-hidden');
+    else toTop.setAttribute('aria-hidden', 'true');
+  };
   const onScroll = () => {
     ticking = false;
+    const y = scrollY;
     const max = document.documentElement.scrollHeight - innerHeight;
-    if (bar) bar.style.setProperty('--sp', max > 0 ? (scrollY / max).toFixed(4) : '0');
-    if (nav) nav.classList.toggle('is-stuck', scrollY > 24);
+    if (bar) bar.style.setProperty('--sp', max > 0 ? (y / max).toFixed(4) : '0');
+    if (nav) {
+      nav.classList.toggle('is-stuck', y > 24);
+      const down = y > lastY + 5, up = y < lastY - 5;
+      if (y > 520 && down && !menuOpen) nav.classList.add('is-hidden');
+      else if (up || y < 140 || menuOpen) nav.classList.remove('is-hidden');
+    }
+    setTop(y > innerHeight * 1.15);
+    lastY = y;
   };
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
@@ -861,6 +967,66 @@
   /* hero headline in */
   const h1 = $('.hero-h1');
   if (h1) requestAnimationFrame(() => setTimeout(() => h1.classList.add('is-in'), 120));
+
+  /* ======================================================================
+     10. Live layer — pointer light, lean, sheen
+     ====================================================================== */
+  if (!reduce) {
+    const track = (el, tilt) => {
+      let raf = 0;
+      el.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const nx = ((e.clientX - r.left) / r.width - .5) * 2;
+        const ny = ((e.clientY - r.top) / r.height - .5) * 2;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          el.style.setProperty('--mx', (50 + nx * 50).toFixed(1) + '%');
+          el.style.setProperty('--my', (50 + ny * 50).toFixed(1) + '%');
+          if (tilt) {
+            el.style.setProperty('--tx', nx.toFixed(3));
+            el.style.setProperty('--ty', ny.toFixed(3));
+          }
+        });
+      }, { passive: true });
+      el.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(raf);
+        if (!tilt) return;
+        el.style.setProperty('--tx', '0');
+        el.style.setProperty('--ty', '0');
+      });
+    };
+
+    const heroEl = $('#hero');
+    if (heroEl) {
+      let raf = 0;
+      heroEl.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') heroEl.classList.add('has-pointer'); });
+      heroEl.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = heroEl.getBoundingClientRect();
+        const nx = ((e.clientX - r.left) / r.width - .5) * 2;
+        const ny = ((e.clientY - r.top) / r.height - .5) * 2;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          heroEl.style.setProperty('--mx', (50 + nx * 50).toFixed(1) + '%');
+          heroEl.style.setProperty('--my', (50 + ny * 50).toFixed(1) + '%');
+          heroEl.style.setProperty('--px', nx.toFixed(3));
+          heroEl.style.setProperty('--py', ny.toFixed(3));
+        });
+      }, { passive: true });
+      heroEl.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(raf);
+        heroEl.classList.remove('has-pointer');
+        heroEl.style.setProperty('--px', '0');
+        heroEl.style.setProperty('--py', '0');
+      });
+    }
+
+    $$('.chapter').forEach(el => track(el, true));
+    $$('[data-sheen]').forEach(el => track(el, false));
+    $$('[data-hex]').forEach(el => track(el, false));
+  }
 
   /* layout on resize */
   let rz = 0;

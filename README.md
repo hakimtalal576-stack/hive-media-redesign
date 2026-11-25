@@ -41,18 +41,35 @@ subtle hover states. All of it is opt-out via `prefers-reduced-motion`, and none
 required to read the page.
 
 **Hive X simulator.** The screen in the Hive X photograph is a live canvas: type a brand name
-and it is drawn in LED dots with the same perspective as the billboard, on every screen generation.
+and it is drawn in LED dots with the same perspective as the billboard. Three screen colours
+(amber, ice, rose) change the LED and the light spill on the tower, and a motion toggle turns the
+message into a scrolling ticker. Every control is a real button with a keyboard path.
 
 **Details.** Sticky navigation with active-section state, scroll progress hairline, copy-to-clipboard
 for phone and email, a live Kuwait clock, keyboard-navigable screen tabs, visible focus states,
 and an Arabic (RTL) switch that mirrors the entire layout.
+
+## Interaction layer
+
+The page is built to feel alive without becoming a demo reel. Every effect below is
+additive: with JavaScript off, a coarse pointer, or reduced motion, the page is unchanged
+and fully readable.
+
+| Where | What it does |
+| --- | --- |
+| Hero | Faint engineering grid and a soft light that follows the pointer; headline and coordinates drift a few pixels against the film for depth. |
+| Media cards | Chapter cards lean subtly in 3D under the pointer; images and the screens stage carry a light sheen that tracks the cursor. |
+| Hive X | Type a name, switch the LED colour, toggle the ticker, watch the light spill on the tower. Drag or swipe the screens stage to move between films. |
+| Navigation | Hides on scroll down, returns on scroll up, marks the section you are in, and always returns on keyboard focus. |
+| Footer | A hex field lights up in gold under the pointer, on brand for a company called Hive. |
+| Everywhere | Scroll reveals, counting statistics, a progress hairline, and a back-to-top control that appears once you are deep in the page. |
 
 ## Structure
 
 ```
 index.html            single page, all sections
 assets/css/site.css   design tokens + layout + motion
-assets/js/site.js     reveals, counters, marquee, Hive X simulator, screen tabs, language
+assets/js/site.js     reveals, counters, marquee, simulator, screen tabs, pointer layer, language
 assets/media/         photography, film, screen stills
 ```
 

@@ -727,3 +727,140 @@ em,.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spac
 [dir="rtl"] .hero-h1,[dir="rtl"] .sec-h,[dir="rtl"] .foot-h,[dir="rtl"] .statement-h{letter-spacing:0}
 [dir="rtl"] .btn,[dir="rtl"] .link-arrow,[dir="rtl"] .tab,[dir="rtl"] .eyebrow,[dir="rtl"] .chapter-go{text-transform:none}
 [dir="rtl"] .marquee-item{flex-direction:row-reverse}
+
+/* ==========================================================================
+   LIVE LAYER — pointer light, depth, future chrome
+   Everything here is additive: with motion or hover off, the page is unchanged.
+   ========================================================================== */
+
+/* hero: engineering grid + light that follows the pointer ------------------ */
+.hero-grid{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(245,242,235,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,242,235,.05) 1px,transparent 1px);
+  background-size:clamp(72px,7vw,116px) clamp(72px,7vw,116px);
+  -webkit-mask-image:radial-gradient(110% 80% at 50% 42%,#000 12%,rgba(0,0,0,.45) 52%,transparent 80%);
+  mask-image:radial-gradient(110% 80% at 50% 42%,#000 12%,rgba(0,0,0,.45) 52%,transparent 80%);
+  opacity:.75;
+}
+.hero-spot{
+  position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .9s var(--ease);
+  background:radial-gradient(circle 420px at var(--mx,50%) var(--my,50%),
+    rgba(248,196,28,.16),rgba(248,196,28,.05) 45%,transparent 72%);
+  background-repeat:no-repeat;
+}
+.hero.has-pointer .hero-spot{opacity:1}
+.hero-h1{transform:translate3d(calc(var(--px,0) * -7px),calc(var(--py,0) * -4px),0);transition:transform .55s var(--ease)}
+.hero-coord{transform:translate3d(calc(var(--px,0) * 5px),calc(var(--py,0) * 3px),0);transition:transform .55s var(--ease)}
+@media (max-width:759px){.hero-grid{opacity:.4}}
+
+/* sheen that tracks the pointer over media cards -------------------------- */
+[data-sheen]{position:relative}
+[data-sheen]::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;
+  transition:opacity .5s var(--ease);
+  background:radial-gradient(circle 240px at var(--mx,50%) var(--my,50%),
+    rgba(255,255,255,.13),rgba(255,255,255,.04) 55%,transparent 78%);
+  background-repeat:no-repeat;
+}
+[data-sheen]:hover::before,[data-sheen]:focus-within::before{opacity:1}
+
+/* subtle 3D lean on the chapter cards ------------------------------------- */
+.chapter-body{position:absolute;z-index:2}
+.chapter{transform:perspective(1100px) rotateX(calc(var(--ty,0) * -1.6deg)) rotateY(calc(var(--tx,0) * 1.6deg));
+  transition:transform .6s var(--ease)}
+.chapter:hover{will-change:transform}
+
+/* the LED panel actually lights the tower --------------------------------- */
+.hx-glow{
+  position:absolute;left:30.5%;top:28.2%;width:39.5%;height:20.4%;pointer-events:none;z-index:1;
+  background:var(--led,#F8C41C);opacity:.42;filter:blur(30px);mix-blend-mode:screen;
+  transition:background .6s var(--ease),opacity .6s var(--ease);
+}
+.hx-stage #sim{z-index:2}
+.hx-stage .hx-frame{z-index:3}
+
+/* simulator controls ------------------------------------------------------ */
+.sim-controls{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:.2rem}
+.sim-swatches{display:flex;gap:.4rem}
+.sw{
+  width:44px;height:44px;display:grid;place-items:center;border-radius:50%;
+  border:1px solid var(--line-strong);background:rgba(245,242,235,.02);
+  transition:border-color .3s,transform .3s var(--ease),background .3s;
+}
+.sw i{width:15px;height:15px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;transition:transform .3s var(--ease)}
+.sw[data-led="gold"]{color:#F8C41C}
+.sw[data-led="ice"]{color:#8FE6FF}
+.sw[data-led="rose"]{color:#FF7AC2}
+.sw:hover{border-color:var(--fg-2);transform:translateY(-1px)}
+.sw[aria-pressed="true"]{border-color:var(--fg);background:rgba(245,242,235,.06)}
+.sw[aria-pressed="true"] i{transform:scale(1.18)}
+.sim-mode{
+  min-height:44px;padding:0 .9rem;border:1px solid var(--line-strong);border-radius:2px;
+  font-size:.64rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-2);
+  display:inline-flex;align-items:center;gap:.5rem;transition:color .3s,border-color .3s,background .3s;
+}
+.sim-mode::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.4;transition:opacity .3s}
+.sim-mode:hover{color:var(--fg);border-color:var(--fg-2)}
+.sim-mode[aria-pressed="true"]{color:var(--gold);border-color:rgba(248,196,28,.55);background:rgba(248,196,28,.07)}
+.sim-mode[aria-pressed="true"]::before{opacity:1;animation:pulse 2.4s infinite}
+
+/* screens: swipe affordance ---------------------------------------------- */
+.stage-shot{touch-action:pan-y;cursor:grab}
+.stage-shot.is-dragging{cursor:grabbing}
+.stage-shot.is-dragging img{transition:none}
+
+/* back to top ------------------------------------------------------------ */
+.to-top{
+  position:fixed;inset-inline-end:clamp(14px,2.6vw,26px);bottom:clamp(14px,2.6vw,26px);z-index:70;
+  width:46px;height:46px;display:grid;place-items:center;border-radius:50%;
+  background:rgba(8,8,10,.82);border:1px solid var(--line-strong);color:var(--fg);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  opacity:0;transform:translateY(14px) scale(.9);pointer-events:none;
+  transition:opacity .45s var(--ease),transform .45s var(--ease),color .3s,border-color .3s;
+}
+.to-top.is-on{opacity:1;transform:none;pointer-events:auto}
+.to-top:hover{color:var(--gold);border-color:var(--gold)}
+.to-top:focus-visible{opacity:1;transform:none;pointer-events:auto}
+
+/* footer CTA: the hex field lights up under the pointer ------------------- */
+.foot-cta{--hex-w:54px;--hex-h:62px}
+.foot-cta::before,
+.foot-cta::after{
+  content:"";position:absolute;inset:-14% -12%;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='62' viewBox='0 0 54 62'%3E%3Cpath d='M27 1.5 51 15v31L27 60.5 3 46V15z' fill='none' stroke='%23F5F2EB' stroke-opacity='.075' stroke-width='1'/%3E%3C/svg%3E");
+  background-size:var(--hex-w) var(--hex-h);
+}
+.foot-cta::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='62' viewBox='0 0 54 62'%3E%3Cpath d='M27 1.5 51 15v31L27 60.5 3 46V15z' fill='none' stroke='%23F8C41C' stroke-opacity='.85' stroke-width='1'/%3E%3C/svg%3E");
+  opacity:0;transition:opacity .6s var(--ease);
+  -webkit-mask-image:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),#000 0%,rgba(0,0,0,.35) 45%,transparent 72%);
+  mask-image:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),#000 0%,rgba(0,0,0,.35) 45%,transparent 72%);
+}
+.foot-cta:hover::after,.foot-cta:focus-within::after{opacity:1}
+.foot-cta > *{position:relative;z-index:1}
+
+/* light sweep across the primary button ----------------------------------- */
+.btn-gold::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;
+  background-image:linear-gradient(104deg,transparent 36%,rgba(255,255,255,.55) 50%,transparent 64%);
+  background-repeat:no-repeat;background-size:260% 100%;background-position:140% 0;
+  opacity:0;transition:background-position 1s var(--ease),opacity .3s;
+}
+.btn-gold:hover::after,.btn-gold:focus-visible::after{opacity:1;background-position:-40% 0}
+
+/* nav that gets out of the way when you read downward -------------------- */
+.nav{transition:background .45s var(--ease),border-color .45s var(--ease),transform .55s var(--ease)}
+.nav.is-hidden{transform:translateY(-101%)}
+.nav.is-hidden:focus-within{transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .hero-spot{display:none}
+  .hero-h1,.hero-coord{transform:none}
+  .chapter{transform:none}
+  [data-sheen]::before{display:none}
+  .foot-cta::after{display:none}
+  .to-top{transition:opacity .2s}
+  .hx-glow{opacity:.3}
+}
