@@ -462,6 +462,16 @@
   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
 </a>
 
-<script src="assets/js/site.js" defer></script>
+<script>
+/* The behaviour loads after the first paint: parsing and running it must never
+   hold the hero back. Everything above the fold is styled and visible without it. */
+(function () {
+  var s = document.createElement('script');
+  s.src = 'assets/js/site.js';
+  var go = function () { document.body.appendChild(s); };
+  if (document.readyState === 'complete') go();
+  else requestAnimationFrame(function () { setTimeout(go, 0); });
+})();
+</script>
 </body>
 </html>
