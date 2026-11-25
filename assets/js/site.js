@@ -182,8 +182,16 @@
       const items = t('ticker');
       const one = items.map(x => `<span class="marquee-item"><b>⬢</b>${x}</span>`).join('');
       track.innerHTML = one + one + one + one;
+      built = true;
     };
-    return { build };
+    let built = false;
+    if (track && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(es => {
+        if (es[0].isIntersecting && !built) { build(); io.disconnect(); }
+      }, { rootMargin: '400px' });
+      io.observe(track);
+    }
+    return { build: () => { if (!built) build(); } };
   })();
 
   /* ======================================================================
@@ -246,7 +254,15 @@
         });
       });
       paint();
+      built = true;
     };
+    let built = false;
+    if (tabs && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(es => {
+        if (es[0].isIntersecting && !built) { build(); io.disconnect(); }
+      }, { rootMargin: '400px' });
+      io.observe(tabs.closest('section') || tabs.parentElement || tabs);
+    }
 
     const paint = () => {
       const s = SCREENS[current];
@@ -808,9 +824,9 @@
     paintTheme(isLight() ? 'light' : 'dark');
 
     if (initial) {
-      /* nothing below the fold has to exist before the first paint: build the
-         ticker, the rotating lines and the screen tabs once the browser is free */
-      idle(() => { marquee.build(); rot.reset(); stage.build(); });
+      /* nothing below the fold is built before it is needed: the ticker and the
+         screen tabs build when their sections come close, the hero lines build now */
+      rot.reset();
     } else {
       marquee.build();
       rot.reset();
